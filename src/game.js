@@ -1,11 +1,11 @@
-import { Engine } from './engine.js?v=20261006-3';
-import { GAME_DATA } from './data.js?v=20261006-3';
-import { createPlayer, addXP, resetAfterDeath } from './systems/character.js?v=20261006-3';
-import { attack } from './systems/combat.js?v=20261006-3';
-import { showInventory } from './systems/inventory.js?v=20261006-3';
-import { interact } from './systems/quests.js?v=20261006-3';
-import { createWorld } from './systems/world.js?v=20261006-3';
-import { createRenderer } from './rendering/renderer.js?v=20261006-3';
+import { Engine } from './engine.js?v=20261006-4';
+import { GAME_DATA } from './data.js?v=20261006-4';
+import { createPlayer, addXP, resetAfterDeath } from './systems/character.js?v=20261006-4';
+import { attack } from './systems/combat.js?v=20261006-4';
+import { showInventory } from './systems/inventory.js?v=20261006-4';
+import { interact } from './systems/quests.js?v=20261006-4';
+import { createWorld } from './systems/world.js?v=20261006-4';
+import { createRenderer } from './rendering/renderer.js?v=20261006-4';
 
 (() => {
 const canvas=document.getElementById('world');
@@ -14,21 +14,21 @@ const player=createPlayer(GAME_DATA), world=createWorld(GAME_DATA,player);
 const state={player,world};
 let W=innerWidth,H=innerHeight,last=performance.now(),keys=new Set(),jx=0,jy=0,rx=0,ry=0;
 const renderer=createRenderer(canvas,state);
-function resize(){const s=renderer.resize();W=s.W;H=s.H} addEventListener('resize',resize);resize();
+function resize(){const s=renderer.resize();W=s.W;H=s.H} window.onresize=resize;resize();
 const say=t=>logEl.textContent=t;
 const near=(a,b,d=80)=>Engine.distance(a,b)<d;
 function updateUI(){for(const k of ['str','end','dex','int','wis'])document.getElementById(k).textContent=player[k];hpEl.style.width=(player.hp/player.maxHp*100)+'%';hpText.textContent=Math.ceil(player.hp)+' / '+player.maxHp;xpEl.style.width=(player.xp/player.next*100)+'%';xpText.textContent=player.xp+' / '+player.next;levelEl.textContent=player.level;goldEl.textContent=player.gold}
 const gainXP=n=>addXP(player,n,say,updateUI);
 const doAttack=()=>{attack({player,enemy:world.enemy,addXP:gainXP,say});updateUI()};
 const doInteract=()=>{interact({player,elder:world.elder,wolf:world.wolf,chest:world.chest,near,addXP:gainXP,say});updateUI()};
-const bind=(id,event,fn)=>{const el=document.getElementById(id);if(el)el.addEventListener(event,e=>{e.preventDefault();fn()})};
+const bind=(id,event,fn)=>{const el=document.getElementById(id);if(el)el['on'+event]=e=>{e.preventDefault();fn()}};
 bind('attack','pointerdown',doAttack);bind('attackBtn','pointerdown',doAttack);bind('interactBtn','pointerdown',doInteract);bind('inventoryBtn','pointerdown',()=>showInventory(player,say));
 const bindFloating=(zoneId,stickId,knobId,setter)=>{const zone=document.getElementById(zoneId),stick=document.getElementById(stickId),knob=document.getElementById(knobId);if(zone&&stick&&knob)Engine.bindFloatingJoystick(zone,stick,knob,setter,38)};
 bindFloating('moveTouchZone','moveStick','moveKnob',(x,y)=>{jx=x;jy=y});
 bindFloating('actionTouchZone','actionStick','actionKnob',(x,y)=>{rx=x;ry=y});
-if(canvas)canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'){const x=e.clientX-W/2+world.cam.x,y=e.clientY-H/2+world.cam.y;if(world.enemy.alive&&Math.hypot(x-world.enemy.x,y-world.enemy.y)<75){player.angle=Math.atan2(y-player.y,x-player.x);doAttack()}}});
-addEventListener('keydown',e=>{if(['INPUT','TEXTAREA','BUTTON'].includes(e.target.tagName))return;keys.add(e.key.toLowerCase());if(e.key===' '){e.preventDefault();doAttack()}if(e.key.toLowerCase()==='e')doInteract();if(e.key.toLowerCase()==='i')showInventory(player,say)});
-addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
+if(canvas)canvas.onpointerdown=e=>{if(e.pointerType==='mouse'){const x=e.clientX-W/2+world.cam.x,y=e.clientY-H/2+world.cam.y;if(world.enemy.alive&&Math.hypot(x-world.enemy.x,y-world.enemy.y)<75){player.angle=Math.atan2(y-player.y,x-player.x);doAttack()}}};
+window.onkeydown=e=>{if(['INPUT','TEXTAREA','BUTTON'].includes(e.target.tagName))return;keys.add(e.key.toLowerCase());if(e.key===' '){e.preventDefault();doAttack()}if(e.key.toLowerCase()==='e')doInteract();if(e.key.toLowerCase()==='i')showInventory(player,say)};
+window.onkeyup=e=>keys.delete(e.key.toLowerCase());
 function loop(now){const dt=Math.min(.033,(now-last)/1000);last=now;let dx=0,dy=0;if(keys.has('w')||keys.has('arrowup'))dy-=1;if(keys.has('s')||keys.has('arrowdown'))dy+=1;if(keys.has('a')||keys.has('arrowleft'))dx-=1;if(keys.has('d')||keys.has('arrowright'))dx+=1;dx+=jx;dy+=jy;const l=Math.hypot(dx,dy);if(l>.05){dx/=l;dy/=l;player.angle=Math.atan2(dy,dx);const speed=190;player.x=Engine.clamp(player.x+dx*speed*dt,40,world.map.w-40);player.y=Engine.clamp(player.y+dy*speed*dt,40,world.map.h-40)}
 player.attack=Math.max(0,player.attack-dt);const e=world.enemy;
 if(Math.hypot(rx,ry)>.25){player.angle=Math.atan2(ry,rx);if(e.alive&&Engine.distance(e,player)<125&&player.attack<=0)doAttack()}
