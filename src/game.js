@@ -27,7 +27,6 @@ document.getElementById('interactBtn').addEventListener('pointerdown',e=>{e.prev
 document.getElementById('inventoryBtn').addEventListener('pointerdown',e=>{e.preventDefault();showInventory(player,say)});
 Engine.bindFloatingJoystick(document.getElementById('moveTouchZone'),document.getElementById('moveStick'),document.getElementById('moveKnob'),(x,y)=>{jx=x;jy=y},38);
 Engine.bindFloatingJoystick(document.getElementById('actionTouchZone'),document.getElementById('actionStick'),document.getElementById('actionKnob'),(x,y)=>{rx=x;ry=y},38);
-const joy=document.getElementById('joy'),knob=document.getElementById('knob');Engine.bindJoystick(joy,knob,(x,y)=>{jx=x;jy=y},34);
 canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'){const x=e.clientX-W/2+world.cam.x,y=e.clientY-H/2+world.cam.y;if(world.enemy.alive&&Math.hypot(x-world.enemy.x,y-world.enemy.y)<75){player.angle=Math.atan2(y-player.y,x-player.x);doAttack()}}});
 addEventListener('keydown',e=>{if(['INPUT','TEXTAREA','BUTTON'].includes(e.target.tagName))return;keys.add(e.key.toLowerCase());if(e.key===' '){e.preventDefault();doAttack()}if(e.key.toLowerCase()==='e')doInteract();if(e.key.toLowerCase()==='i')showInventory(player,say)});
 addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
