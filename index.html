@@ -48,7 +48,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-acti
   </div>
   <div class="mobileHint">Links: bewegen · Rechts: Kampfsteuerung · Buttons: Aktion</div>
 </div>
-<script type="module" src="src/game.js"></script>
+<script>window.addEventListener("error",e=>{const b=document.getElementById("bootError");if(b){b.hidden=false;b.textContent="Spiel konnte nicht gestartet werden: "+(e.message||"JavaScript-Fehler")}});window.addEventListener("unhandledrejection",e=>{const b=document.getElementById("bootError");if(b){b.hidden=false;b.textContent="Spiel konnte nicht gestartet werden: "+(e.reason?.message||String(e.reason||"Fehler"))}});</script><div id="bootError" hidden style="position:fixed;z-index:9999;inset:20px auto auto 20px;max-width:calc(100vw - 40px);padding:12px 14px;border:1px solid #a44;border-radius:10px;background:#211;color:#fff;font:14px system-ui">Spiel wird geladen …</div><script type="module" src="src/game.js?v=20261006-1"></script>
 
 </body>
 </html>
