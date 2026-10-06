@@ -1,11 +1,11 @@
-import { Engine } from './engine.js?v=20261006-2';
-import { GAME_DATA } from './data.js?v=20261006-2';
-import { createPlayer, addXP, resetAfterDeath } from './systems/character.js?v=20261006-2';
-import { attack } from './systems/combat.js?v=20261006-2';
-import { showInventory } from './systems/inventory.js?v=20261006-2';
-import { interact } from './systems/quests.js?v=20261006-2';
-import { createWorld } from './systems/world.js?v=20261006-2';
-import { createRenderer } from './rendering/renderer.js?v=20261006-2';
+import { Engine } from './engine.js?v=20261006-3';
+import { GAME_DATA } from './data.js?v=20261006-3';
+import { createPlayer, addXP, resetAfterDeath } from './systems/character.js?v=20261006-3';
+import { attack } from './systems/combat.js?v=20261006-3';
+import { showInventory } from './systems/inventory.js?v=20261006-3';
+import { interact } from './systems/quests.js?v=20261006-3';
+import { createWorld } from './systems/world.js?v=20261006-3';
+import { createRenderer } from './rendering/renderer.js?v=20261006-3';
 
 (() => {
 const canvas=document.getElementById('world');
@@ -21,13 +21,12 @@ function updateUI(){for(const k of ['str','end','dex','int','wis'])document.getE
 const gainXP=n=>addXP(player,n,say,updateUI);
 const doAttack=()=>{attack({player,enemy:world.enemy,addXP:gainXP,say});updateUI()};
 const doInteract=()=>{interact({player,elder:world.elder,wolf:world.wolf,chest:world.chest,near,addXP:gainXP,say});updateUI()};
-document.getElementById('attack').addEventListener('pointerdown',e=>{e.preventDefault();doAttack()});
-document.getElementById('attackBtn').addEventListener('pointerdown',e=>{e.preventDefault();doAttack()});
-document.getElementById('interactBtn').addEventListener('pointerdown',e=>{e.preventDefault();doInteract()});
-document.getElementById('inventoryBtn').addEventListener('pointerdown',e=>{e.preventDefault();showInventory(player,say)});
-Engine.bindFloatingJoystick(document.getElementById('moveTouchZone'),document.getElementById('moveStick'),document.getElementById('moveKnob'),(x,y)=>{jx=x;jy=y},38);
-Engine.bindFloatingJoystick(document.getElementById('actionTouchZone'),document.getElementById('actionStick'),document.getElementById('actionKnob'),(x,y)=>{rx=x;ry=y},38);
-canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'){const x=e.clientX-W/2+world.cam.x,y=e.clientY-H/2+world.cam.y;if(world.enemy.alive&&Math.hypot(x-world.enemy.x,y-world.enemy.y)<75){player.angle=Math.atan2(y-player.y,x-player.x);doAttack()}}});
+const bind=(id,event,fn)=>{const el=document.getElementById(id);if(el)el.addEventListener(event,e=>{e.preventDefault();fn()})};
+bind('attack','pointerdown',doAttack);bind('attackBtn','pointerdown',doAttack);bind('interactBtn','pointerdown',doInteract);bind('inventoryBtn','pointerdown',()=>showInventory(player,say));
+const bindFloating=(zoneId,stickId,knobId,setter)=>{const zone=document.getElementById(zoneId),stick=document.getElementById(stickId),knob=document.getElementById(knobId);if(zone&&stick&&knob)Engine.bindFloatingJoystick(zone,stick,knob,setter,38)};
+bindFloating('moveTouchZone','moveStick','moveKnob',(x,y)=>{jx=x;jy=y});
+bindFloating('actionTouchZone','actionStick','actionKnob',(x,y)=>{rx=x;ry=y});
+if(canvas)canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'){const x=e.clientX-W/2+world.cam.x,y=e.clientY-H/2+world.cam.y;if(world.enemy.alive&&Math.hypot(x-world.enemy.x,y-world.enemy.y)<75){player.angle=Math.atan2(y-player.y,x-player.x);doAttack()}}});
 addEventListener('keydown',e=>{if(['INPUT','TEXTAREA','BUTTON'].includes(e.target.tagName))return;keys.add(e.key.toLowerCase());if(e.key===' '){e.preventDefault();doAttack()}if(e.key.toLowerCase()==='e')doInteract();if(e.key.toLowerCase()==='i')showInventory(player,say)});
 addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
 function loop(now){const dt=Math.min(.033,(now-last)/1000);last=now;let dx=0,dy=0;if(keys.has('w')||keys.has('arrowup'))dy-=1;if(keys.has('s')||keys.has('arrowdown'))dy+=1;if(keys.has('a')||keys.has('arrowleft'))dx-=1;if(keys.has('d')||keys.has('arrowright'))dx+=1;dx+=jx;dy+=jy;const l=Math.hypot(dx,dy);if(l>.05){dx/=l;dy/=l;player.angle=Math.atan2(dy,dx);const speed=190;player.x=Engine.clamp(player.x+dx*speed*dt,40,world.map.w-40);player.y=Engine.clamp(player.y+dy*speed*dt,40,world.map.h-40)}
