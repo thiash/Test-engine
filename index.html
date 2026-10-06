@@ -13,14 +13,14 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-acti
 .name{font-weight:800;font-size:16px}.level{float:right;color:var(--gold)}
 .bar{height:9px;background:#252d37;border-radius:6px;overflow:hidden;margin-top:7px;border:1px solid #10151b}.fill{height:100%;transition:width .12s linear}.hp{background:linear-gradient(90deg,#8e2f39,#d45d62)}.xp{background:linear-gradient(90deg,#8b6b27,#d9b85e)}
 .stats{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:4px}
-.help{position:absolute;z-index:3;right:14px;top:14px;background:#0d1117d9;border:1px solid #3a4655;border-radius:8px;padding:8px 10px;color:#b8c2ce;font-size:12px}
+.help{display:none;position:absolute;z-index:3;right:14px;top:14px;background:#0d1117d9;border:1px solid #3a4655;border-radius:8px;padding:8px 10px;color:#b8c2ce;font-size:12px}
 .log{position:absolute;z-index:3;left:14px;bottom:14px;width:min(390px,calc(100vw - 28px));min-height:52px;background:#0d1117db;border:1px solid #3a4655;border-radius:9px;padding:8px 10px;color:#cbd3dc;font-size:12px;line-height:1.45}
 .controls{position:absolute;z-index:4;right:18px;bottom:18px;display:flex;gap:12px;align-items:end;pointer-events:none}
 .joy{width:116px;height:116px;border-radius:50%;border:1px solid #8290a055;background:#0d1117aa;position:relative;pointer-events:auto;touch-action:none}
 .knob{position:absolute;width:48px;height:48px;left:34px;top:34px;border-radius:50%;background:#c4ccd588;border:1px solid #fff5;box-shadow:0 3px 12px #0008}
 .attack{width:74px;height:74px;border-radius:50%;border:1px solid #fff4;background:radial-gradient(circle at 35% 30%,#df7b67,#7c2930);color:white;font-weight:800;box-shadow:0 5px 18px #0009;pointer-events:auto;touch-action:manipulation}
 @media(max-width:650px){.help{display:none}.hud{font-size:12px}.log{bottom:144px;min-height:42px;width:calc(100vw - 28px)}}
-.panel{position:absolute;z-index:5;right:14px;top:70px;width:min(270px,calc(100vw - 28px));background:#0d1117e8;border:1px solid #3a4655;border-radius:9px;padding:10px;font-size:12px;color:#cbd3dc;line-height:1.5}.panel b{color:#d7b36a}.panel h3{margin:0 0 6px;font-size:13px;color:#fff}.quest{margin-top:8px;padding-top:8px;border-top:1px solid #344152}@media(max-width:650px){.panel{top:70px;right:8px;width:220px}}</style>
+.panel{position:absolute;z-index:5;right:14px;top:70px;width:min(270px,calc(100vw - 28px));background:#0d1117e8;border:1px solid #3a4655;border-radius:9px;padding:10px;font-size:12px;color:#cbd3dc;line-height:1.5}.panel b{color:#d7b36a}.panel h3{margin:0 0 6px;font-size:13px;color:#fff}.quest{margin-top:8px;padding-top:8px;border-top:1px solid #344152}@media(max-width:650px){.panel{top:70px;right:8px;width:220px}}.mobileControls{position:absolute;z-index:10;inset:0;pointer-events:none}.mobileJoy{position:absolute;bottom:22px;width:132px;height:132px;border-radius:50%;border:1px solid #ffffff30;background:#0b111899;backdrop-filter:blur(3px);pointer-events:auto;touch-action:none}.moveJoy{left:22px}.actionJoy{right:22px}.mobileKnob{position:absolute;left:39px;top:39px;width:54px;height:54px;border-radius:50%;background:#ffffff35;border:1px solid #ffffff45}.actionButtons{position:absolute;right:176px;bottom:30px;display:flex;gap:10px;pointer-events:auto}.touchBtn{width:54px;height:54px;border-radius:50%;border:1px solid #ffffff35;background:#111923bb;color:#fff;font-size:20px;touch-action:manipulation}.touchBtn.small{font-size:15px}.touchBtn:active{background:#ffffff35}.mobileHint{position:absolute;bottom:164px;left:50%;transform:translateX(-50%);padding:5px 9px;border-radius:8px;background:#0d111799;color:#cbd3dc;font-size:11px;white-space:nowrap;pointer-events:none}@media(max-width:650px){.controls{display:none}.panel{top:70px;right:8px;width:220px}.mobileJoy{bottom:18px}.actionButtons{right:166px;bottom:25px}}@media(min-width:651px){.mobileControls{display:none}}</style>
 </head>
 <body>
 <div id="game">
@@ -38,12 +38,21 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-acti
   <div id="joy" class="joy" aria-label="Bewegungsjoystick"><div id="knob" class="knob"></div></div>
   <button id="attack" class="attack" type="button" aria-label="Angreifen">⚔</button>
 </div>
+</div><div class="mobileControls">
+  <div id="moveJoy" class="mobileJoy moveJoy" aria-label="Bewegungsjoystick"><div id="moveKnob" class="mobileKnob"></div></div>
+  <div id="actionJoy" class="mobileJoy actionJoy" aria-label="Kampfjoystick"><div id="actionKnob" class="mobileKnob"></div></div>
+  <div class="actionButtons">
+    <button id="interactBtn" class="touchBtn" type="button" aria-label="Interagieren">↗</button>
+    <button id="inventoryBtn" class="touchBtn small" type="button" aria-label="Inventar">🎒</button>
+    <button id="attackBtn" class="touchBtn" type="button" aria-label="Angreifen">⚔</button>
+  </div>
+  <div class="mobileHint">Links: bewegen · Rechts: Kampfsteuerung · Buttons: Aktion</div>
 </div>
 <script>
 (() => {
 const canvas=document.getElementById('world'),ctx=canvas.getContext('2d');
 const hpEl=document.getElementById('hp'),hpText=document.getElementById('hpText'),xpEl=document.getElementById('xp'),xpText=document.getElementById('xpText'),levelEl=document.getElementById('level'),goldEl=document.getElementById('gold'),logEl=document.getElementById('log');
-let W=0,H=0,dpr=1,last=performance.now(),keys=new Set(),jx=0,jy=0,joyId=null;
+let W=0,H=0,dpr=1,last=performance.now(),keys=new Set(),jx=0,jy=0,joyId=null,rx=0,ry=0,actionJoyId=null;
 const map={w:3600,h:2400},cam={x:1800,y:1300};
 const player={x:1800,y:1300,r:18,hp:100,maxHp:100,xp:0,next:100,level:1,gold:25,angle:0,attack:0,hit:0,
  str:12,end:12,dex:10,int:8,wis:8,inventory:['Heiltrank','Wolfsfell'],equipment:{weapon:'Rostiger Dolch',armor:'Leinenwams'},quest:'none',potions:1};
@@ -95,6 +104,12 @@ function attack(){
  say('Kein Gegner in Reichweite.')
 }
 document.getElementById('attack').addEventListener('pointerdown',e=>{e.preventDefault();attack()});
+function bindTouchJoy(el,knobEl,setter){let id=null;function move(e){const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy,l=Math.hypot(dx,dy),m=38;if(l>m){dx=dx/l*m;dy=dy/l*m}setter(dx/m,dy/m);knobEl.style.transform='translate('+dx+'px,'+dy+'px)'}el.addEventListener('pointerdown',e=>{id=e.pointerId;el.setPointerCapture(id);move(e)});el.addEventListener('pointermove',e=>{if(e.pointerId===id)move(e)});const end=e=>{if(e.pointerId===id){id=null;setter(0,0);knobEl.style.transform='translate(0,0)'}};el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end)}
+bindTouchJoy(document.getElementById('moveJoy'),document.getElementById('moveKnob'),(x,y)=>{jx=x;jy=y});
+bindTouchJoy(document.getElementById('actionJoy'),document.getElementById('actionKnob'),(x,y)=>{rx=x;ry=y});
+document.getElementById('attackBtn').addEventListener('pointerdown',e=>{e.preventDefault();attack()});
+document.getElementById('interactBtn').addEventListener('pointerdown',e=>{e.preventDefault();interact()});
+document.getElementById('inventoryBtn').addEventListener('pointerdown',e=>{e.preventDefault();say('Inventar: '+player.inventory.join(' · '))});
 canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'){let x=e.clientX-W/2+cam.x,y=e.clientY-H/2+cam.y;if(enemy.alive&&Math.hypot(x-enemy.x,y-enemy.y)<75){player.angle=Math.atan2(y-player.y,x-player.x);attack()}}});
 addEventListener('keydown',e=>{if(['INPUT','TEXTAREA','BUTTON'].includes(e.target.tagName))return;keys.add(e.key.toLowerCase());if(e.key===' '){e.preventDefault();attack()}if(e.key.toLowerCase()==='e'){interact()}if(e.key.toLowerCase()==='i'){say('Inventar: '+player.inventory.join(' · '))}});
 addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
@@ -102,7 +117,7 @@ const joy=document.getElementById('joy'),knob=document.getElementById('knob');
 function joyMove(e){const r=joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy,l=Math.hypot(dx,dy),m=34;if(l>m){dx=dx/l*m;dy=dy/l*m}jx=dx/m;jy=dy/m;knob.style.transform='translate('+dx+'px,'+dy+'px)'}
 joy.addEventListener('pointerdown',e=>{joyId=e.pointerId;joy.setPointerCapture(joyId);joyMove(e)});joy.addEventListener('pointermove',e=>{if(e.pointerId===joyId)joyMove(e)});joy.addEventListener('pointerup',e=>{if(e.pointerId===joyId){joyId=null;jx=jy=0;knob.style.transform='translate(0,0)'}});
 function loop(now){const dt=Math.min(.033,(now-last)/1000);last=now;let dx=0,dy=0;if(keys.has('w')||keys.has('arrowup'))dy-=1;if(keys.has('s')||keys.has('arrowdown'))dy+=1;if(keys.has('a')||keys.has('arrowleft'))dx-=1;if(keys.has('d')||keys.has('arrowright'))dx+=1;dx+=jx;dy+=jy;let l=Math.hypot(dx,dy);if(l>.05){dx/=l;dy/=l;player.angle=Math.atan2(dy,dx);let speed=190;player.x=clamp(player.x+dx*speed*dt,40,map.w-40);player.y=clamp(player.y+dy*speed*dt,40,map.h-40)}
- player.attack=Math.max(0,player.attack-dt);if(enemy.alive){let d=Math.hypot(player.x-enemy.x,player.y-enemy.y);if(d<360){let a=Math.atan2(player.y-enemy.y,player.x-enemy.x);enemy.x+=Math.cos(a)*30*dt;enemy.y+=Math.sin(a)*30*dt;if(d<62&&enemy.attack<=0){enemy.attack=.9;player.hp=Math.max(0,player.hp-8);say('Der Goblin trifft dich.');updateUI();if(player.hp<=0){player.hp=player.maxHp;player.x=1800;player.y=1300;player.gold=Math.max(0,player.gold-5);say('Du wurdest besiegt. -5 Gold. Du kehrst ins Dorf zurück.');updateUI()}}}}else{enemy.respawn-=dt;if(enemy.respawn<=0){enemy.alive=true;enemy.hp=enemy.maxHp;enemy.x=2200;enemy.y=1250;say('Ein neuer Waldgoblin erscheint.')}}
+ player.attack=Math.max(0,player.attack-dt);if(Math.hypot(rx,ry)>.25){player.angle=Math.atan2(ry,rx);if(enemy.alive&&Math.hypot(enemy.x-player.x,enemy.y-player.y)<125&&player.attack<=0)attack()}if(enemy.alive){let d=Math.hypot(player.x-enemy.x,player.y-enemy.y);if(d<360){let a=Math.atan2(player.y-enemy.y,player.x-enemy.x);enemy.x+=Math.cos(a)*30*dt;enemy.y+=Math.sin(a)*30*dt;if(d<62&&enemy.attack<=0){enemy.attack=.9;player.hp=Math.max(0,player.hp-8);say('Der Goblin trifft dich.');updateUI();if(player.hp<=0){player.hp=player.maxHp;player.x=1800;player.y=1300;player.gold=Math.max(0,player.gold-5);say('Du wurdest besiegt. -5 Gold. Du kehrst ins Dorf zurück.');updateUI()}}}}else{enemy.respawn-=dt;if(enemy.respawn<=0){enemy.alive=true;enemy.hp=enemy.maxHp;enemy.x=2200;enemy.y=1250;say('Ein neuer Waldgoblin erscheint.')}}
  cam.x+=(player.x-cam.x)*Math.min(1,dt*7);cam.y+=(player.y-cam.y)*Math.min(1,dt*7);ctx.clearRect(0,0,W,H);drawGround();drawNature();drawNPC(elder,'Ältester');drawChest();drawEnemy();drawCharacter();requestAnimationFrame(loop)}
 updateUI();say('Sprich mit dem Ältesten (E nahe ihm). Erkunde danach den Wald.');requestAnimationFrame(loop);
 })();
