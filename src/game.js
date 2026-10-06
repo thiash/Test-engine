@@ -1,11 +1,11 @@
-import { Engine } from './engine.js?v=20261006-1';
-import { GAME_DATA } from './data.js?v=20261006-1';
-import { createPlayer, addXP, resetAfterDeath } from './systems/character.js?v=20261006-1';
-import { attack } from './systems/combat.js?v=20261006-1';
-import { showInventory } from './systems/inventory.js?v=20261006-1';
-import { interact } from './systems/quests.js?v=20261006-1';
-import { createWorld } from './systems/world.js?v=20261006-1';
-import { createRenderer } from './rendering/renderer.js?v=20261006-1';
+import { Engine } from './engine.js?v=20261006-2';
+import { GAME_DATA } from './data.js?v=20261006-2';
+import { createPlayer, addXP, resetAfterDeath } from './systems/character.js?v=20261006-2';
+import { attack } from './systems/combat.js?v=20261006-2';
+import { showInventory } from './systems/inventory.js?v=20261006-2';
+import { interact } from './systems/quests.js?v=20261006-2';
+import { createWorld } from './systems/world.js?v=20261006-2';
+import { createRenderer } from './rendering/renderer.js?v=20261006-2';
 
 (() => {
 const canvas=document.getElementById('world');
