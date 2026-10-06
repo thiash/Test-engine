@@ -25,7 +25,7 @@ document.getElementById('attack').addEventListener('pointerdown',e=>{e.preventDe
 document.getElementById('attackBtn').addEventListener('pointerdown',e=>{e.preventDefault();doAttack()});
 document.getElementById('interactBtn').addEventListener('pointerdown',e=>{e.preventDefault();doInteract()});
 document.getElementById('inventoryBtn').addEventListener('pointerdown',e=>{e.preventDefault();showInventory(player,say)});
-Engine.bindJoystick(document.getElementById('moveJoy'),document.getElementById('moveKnob'),(x,y)=>{jx=x;jy=y},38);
+Engine.bindFloatingJoystick(document.getElementById('moveZone'),document.getElementById('moveJoy'),document.getElementById('moveKnob'),(x,y)=>{jx=x;jy=y},38);
 Engine.bindFloatingJoystick(document.getElementById('actionZone'),document.getElementById('actionJoy'),document.getElementById('actionKnob'),(x,y)=>{rx=x;ry=y},38);
 const joy=document.getElementById('joy'),knob=document.getElementById('knob');Engine.bindJoystick(joy,knob,(x,y)=>{jx=x;jy=y},34);
 canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'){const x=e.clientX-W/2+world.cam.x,y=e.clientY-H/2+world.cam.y;if(world.enemy.alive&&Math.hypot(x-world.enemy.x,y-world.enemy.y)<75){player.angle=Math.atan2(y-player.y,x-player.x);doAttack()}}});
